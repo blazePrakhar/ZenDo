@@ -1,44 +1,118 @@
 import { useState } from "react";
 import API from "../utils/api";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.name || !form.email || !form.password) {
+      return toast.error("Please fill all fields");
+    }
+
     try {
+      setLoading(true);
+
       await API.post("/auth/register", form);
-      alert("Registered! Now login.");
+
+      toast.success("Registered successfully 🚀");
+
+      navigate("/");
     } catch (err) {
-      alert(err.response?.data?.msg || "Error");
+      toast.error(err.response?.data?.msg || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-  <form onSubmit={handleSubmit}>
-    <h2>Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden px-4">
 
-    <input
-      placeholder="Name"
-      onChange={(e) => setForm({ ...form, name: e.target.value })}
-    />
+      {/* 🌿 Background shapes */}
+      <div className="absolute w-72 h-72 bg-blue-300 blur-3xl opacity-30 top-10 left-10 rounded-full"></div>
+      <div className="absolute w-72 h-72 bg-purple-300 blur-3xl opacity-30 bottom-10 right-10 rounded-full"></div>
 
-    <input
-      placeholder="Email"
-      onChange={(e) => setForm({ ...form, email: e.target.value })}
-    />
+      {/* 🧊 Form container */}
+      <form
+        onSubmit={handleSubmit}
+        className="relative z-10 bg-white/70 backdrop-blur-lg p-8 rounded-xl shadow-md border border-white/30 w-full max-w-sm space-y-5"
+      >
+        {/* 🧘 Branding */}
+        <h1 className="text-3xl font-bold text-center mb-2">
+          ZenDo 🧘
+        </h1>
 
-    <input
-      type="password"
-      placeholder="Password"
-      onChange={(e) => setForm({ ...form, password: e.target.value })}
-    />
+        <p className="text-center text-gray-500 text-sm mb-4">
+          Stay calm. Stay productive.
+        </p>
 
-    <button>Register</button>
+        {/* Title */}
+        <h2 className="text-xl font-semibold text-center">
+          Create Account 📝
+        </h2>
 
-    <p style={{ textAlign: "center" }}>
-      Already have an account? <a href="/">Login</a>
-    </p>
-  </form>
-);
+        {/* Name */}
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+          value={form.name}
+          onChange={(e) =>
+            setForm({ ...form, name: e.target.value })
+          }
+        />
+
+        {/* Email */}
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+          value={form.email}
+          onChange={(e) =>
+            setForm({ ...form, email: e.target.value })
+          }
+        />
+
+        {/* Password */}
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+          value={form.password}
+          onChange={(e) =>
+            setForm({ ...form, password: e.target.value })
+          }
+        />
+
+        {/* Button */}
+        <button
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200 active:scale-95 disabled:opacity-50"
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+
+        {/* Link */}
+        <p className="text-sm text-center text-gray-500">
+          Already have an account?{" "}
+          <span
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate("/")}
+          >
+            Login
+          </span>
+        </p>
+      </form>
+    </div>
+  );
 }
